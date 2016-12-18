@@ -13,7 +13,9 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import com.eastteam.security.AuthFailureHandler;
@@ -70,9 +72,32 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected AuthenticationManager authenticationManager() throws Exception {
         return super.authenticationManager();
     }
+    
+    /**
+     * This enable the concurrent session-control support
+     */
+    @Bean
+    public HttpSessionEventPublisher httpSessionEventPublisher() {
+        return new HttpSessionEventPublisher();
+    }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+    	
+        /*We can control exactly when our session gets created and how Spring Security will interact with it:
+			always – a session will always be created if one doesn’t already exist
+			ifRequired – a session will be created only if required (default)
+			never – the framework will never create a session itself but it will use one if it already exists
+			stateless – no session will be created or used by Spring Security
+    
+        This is default session creationPolicy:
+        
+        http.sessionManagement()
+		.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED);
+		
+		http.sessionManagement().maximumSessions(1);
+        */
+    	
         http.csrf().disable()
                 .authorizeRequests()
                 .antMatchers("/").permitAll()
